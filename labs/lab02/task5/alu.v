@@ -15,25 +15,24 @@
 module alu (
   input      [3:0] a,
   input      [3:0] b,
-  input             op,      // 0 = add, 1 = sub
+  input             op,
   output reg [3:0] result
 );
 
   reg [3:0] b_inv;
   reg [3:0] b_twos;
 
-  always @(a, b) begin
+  always @(a, b, op) begin          // fix #1: add op to sensitivity list
     case (op)
       1'b0: begin
-        result = a + b;                 // add
+        result = a + b;
       end
       1'b1: begin
-        b_inv  <= ~b;                   // sub, via two's complement
-        b_twos <= b_inv + 1;
-        result <= a + b_twos;
+        b_inv  = ~b;                 // fix #2: blocking assignments so
+        b_twos = b_inv + 1;          // each line sees the previous line's
+        result = a + b_twos;         // updated value, in program order
       end
     endcase
   end
 
 endmodule
-
